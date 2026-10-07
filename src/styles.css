@@ -578,6 +578,117 @@ h1 em {
 .version-list span {
   color: #77934c;
 }
+.version-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #efefe9;
+}
+.version-item .version-restore {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: #777b72;
+  font-size: 10px;
+  cursor: pointer;
+}
+.version-item .version-delete {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: #b28a86;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.version-item .version-delete:hover {
+  background: #f7efee;
+  color: #9c5f59;
+}
+.storage-panel {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #efefe9;
+  border-radius: 6px;
+  background: #fafaf6;
+}
+.storage-panel.crowded {
+  border-color: #e7d8b8;
+  background: #fdf8ee;
+}
+.storage-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.storage-head strong {
+  font-size: 10px;
+  font-weight: 600;
+  color: #61685b;
+}
+.storage-warn {
+  font-size: 8px;
+  color: #9a7b2f;
+}
+.storage-rows {
+  margin-top: 7px;
+}
+.storage-rows div {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  font-size: 9px;
+  color: #85897e;
+}
+.storage-rows b {
+  font-weight: 500;
+  color: #61685b;
+}
+.storage-rows .storage-total {
+  border-top: 1px dashed #e6e7df;
+  margin-top: 3px;
+  padding-top: 5px;
+}
+.storage-rows .storage-total b {
+  color: #4d5c3c;
+}
+.storage-clear {
+  margin-top: 8px;
+  width: 100%;
+  border: 1px solid #e3e4da;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 9px;
+}
+.storage-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.storage-confirm span {
+  flex-basis: 100%;
+  font-size: 9px;
+  color: #8a6a44;
+}
+.danger-button {
+  border: 0;
+  border-radius: 5px;
+  padding: 6px 10px;
+  background: #b4756d;
+  color: #fff;
+  font-size: 9px;
+  cursor: pointer;
+}
+.danger-button:hover {
+  background: #a2645d;
+}
 .export-row {
   display: flex;
   gap: 9px;

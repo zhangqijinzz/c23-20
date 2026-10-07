@@ -196,6 +196,7 @@ export function SubtitleMeter() {
                 project={project}
                 vm={vm}
                 phase={state.phase}
+                storage={state.storage}
               />
               <section className="module delivery-summary">
                 <span className="module-kicker">EXPORT CHECK</span>

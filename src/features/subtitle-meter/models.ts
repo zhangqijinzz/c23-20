@@ -20,18 +20,26 @@ export interface SubtitleIssue {
   severity: "info" | "warning" | "error";
   message: string;
 }
+export interface VersionMeta {
+  id: string;
+  label: string;
+  savedAt: number;
+}
 export interface SubtitleProject {
   id: string;
   name: string;
   format: Format;
   cues: SubtitleCue[];
   updatedAt: number;
-  versions: Array<{
-    id: string;
-    label: string;
-    savedAt: number;
-    cues: SubtitleCue[];
-  }>;
+  /** 快照只保留目录信息，快照内容在独立存储中按需加载 */
+  versions: VersionMeta[];
+}
+export interface StorageInfo {
+  snapshotCount: number;
+  snapshotBytes: number;
+  currentBytes: number;
+  totalBytes: number;
+  quotaBytes: number | null;
 }
 export interface MeterState {
   phase: "empty" | "importing" | "ready" | "editing" | "exporting" | "error";
@@ -40,6 +48,7 @@ export interface MeterState {
   selectedId: string | null;
   notice: string;
   zoom: number;
+  storage: StorageInfo | null;
 }
 export const emptyState = (): MeterState => ({
   phase: "empty",
@@ -48,4 +57,5 @@ export const emptyState = (): MeterState => ({
   selectedId: null,
   notice: "",
   zoom: 1,
+  storage: null,
 });
