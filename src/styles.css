@@ -559,6 +559,21 @@ h1 em {
   color: #6d795d;
   padding: 6px 8px;
 }
+.secondary-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.storage-row {
+  padding-top: 13px;
+  border-top: 1px solid #efefe9;
+}
+.cleanup-actions {
+  display: flex;
+  gap: 6px;
+}
+.cleanup-hint {
+  color: #b98a3c;
+}
 .version-list {
   margin-top: 10px;
   border-top: 1px solid #efefe9;

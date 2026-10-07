@@ -1,14 +1,50 @@
-import type { Format, SubtitleProject } from "../models";
+import type { Format, StorageInfo, SubtitleProject } from "../models";
 import type { SubtitleMeterViewModel } from "../viewmodels/subtitleMeterViewModel";
+
+const KEEP_LATEST = 5;
+const MANY_SNAPSHOTS = 10;
+
+function formatBytes(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+}
+
 export function VersionExportModule({
   project,
   vm,
   phase,
+  storage,
 }: {
   project: SubtitleProject;
   vm: SubtitleMeterViewModel;
   phase: string;
+  storage: StorageInfo | null;
 }) {
+  const storageText = storage
+    ? `快照 ${storage.snapshotCount} 个 · 约 ${formatBytes(storage.snapshotBytes)}` +
+      (storage.totalBytes !== null
+        ? ` · 本地总占用约 ${formatBytes(storage.totalBytes)}`
+        : "")
+    : "正在统计存储占用…";
+
+  const clearAll = () => {
+    if (
+      window.confirm(
+        "确定清空全部快照？当前编辑内容不受影响，但已删除的快照无法恢复。",
+      )
+    )
+      void vm.cleanupVersions(0);
+  };
+  const keepLatest = () => {
+    if (
+      window.confirm(
+        `仅保留最近 ${KEEP_LATEST} 个快照，其余删除？当前编辑内容不受影响。`,
+      )
+    )
+      void vm.cleanupVersions(KEEP_LATEST);
+  };
+
   return (
     <section className="module version-module">
       <div className="module-head">
@@ -47,6 +83,31 @@ export function VersionExportModule({
           ))}
         </div>
       )}
+      <div className="version-row storage-row">
+        <div>
+          <strong>存储占用</strong>
+          <small>{storageText}</small>
+          {project.versions.length >= MANY_SNAPSHOTS && (
+            <small className="cleanup-hint">
+              快照较多，清理旧快照可释放空间
+            </small>
+          )}
+        </div>
+        {project.versions.length > 0 && (
+          <div className="cleanup-actions">
+            <button
+              className="secondary-button"
+              disabled={project.versions.length <= KEEP_LATEST}
+              onClick={keepLatest}
+            >
+              仅留最近 {KEEP_LATEST} 个
+            </button>
+            <button className="secondary-button" onClick={clearAll}>
+              清空快照
+            </button>
+          </div>
+        )}
+      </div>
       <div className="export-row">
         <label>
           格式

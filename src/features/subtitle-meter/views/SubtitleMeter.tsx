@@ -21,6 +21,10 @@ export function SubtitleMeter() {
   useEffect(() => {
     void vm.restore();
   }, [vm]);
+  const versionCount = state.project?.versions.length ?? 0;
+  useEffect(() => {
+    void vm.refreshStorage();
+  }, [vm, versionCount]);
   const project = state.project;
   const selected =
     project?.cues.find((cue) => cue.id === state.selectedId) ??
@@ -196,6 +200,7 @@ export function SubtitleMeter() {
                 project={project}
                 vm={vm}
                 phase={state.phase}
+                storage={state.storage}
               />
               <section className="module delivery-summary">
                 <span className="module-kicker">EXPORT CHECK</span>

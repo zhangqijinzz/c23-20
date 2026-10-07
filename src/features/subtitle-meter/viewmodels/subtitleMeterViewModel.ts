@@ -31,7 +31,7 @@ export class SubtitleMeterViewModel {
     const issues = detectIssues(project.cues);
     this.publish({ project, issues, phase, notice: "" });
     try {
-      await projectRepository.save(project);
+      await projectRepository.saveCurrent(project);
     } catch {
       if (this.state.project?.updatedAt === project.updatedAt) {
         this.publish({
@@ -102,14 +102,24 @@ export class SubtitleMeterViewModel {
   async saveVersion() {
     const project = this.state.project;
     if (!project) return;
+    const snapshot = {
+      id: `v-${Date.now()}-${project.versions.length + 1}`,
+      label: `快照 ${project.versions.length + 1}`,
+      savedAt: Date.now(),
+      cues: structuredClone(project.cues),
+    };
+    try {
+      await projectRepository.saveVersion(snapshot);
+    } catch {
+      this.publish({
+        phase: "error",
+        notice: "快照保存失败；当前编辑内容不受影响",
+      });
+      return;
+    }
     const versions = [
       ...project.versions,
-      {
-        id: `v-${Date.now()}`,
-        label: `快照 ${project.versions.length + 1}`,
-        savedAt: Date.now(),
-        cues: structuredClone(project.cues),
-      },
+      { id: snapshot.id, label: snapshot.label, savedAt: snapshot.savedAt },
     ];
     await this.commit({ ...project, versions });
     this.publish({ notice: "已保存版本快照" });
@@ -118,8 +128,50 @@ export class SubtitleMeterViewModel {
     const project = this.state.project,
       version = project?.versions.find((item) => item.id === id);
     if (!project || !version) return;
-    await this.commit({ ...project, cues: structuredClone(version.cues) });
-    this.publish({ notice: `已恢复${version.label}` });
+    try {
+      const cues = await projectRepository.loadVersionCues(id);
+      if (!cues) throw new Error("snapshot body missing");
+      await this.commit({ ...project, cues: structuredClone(cues) });
+      this.publish({ notice: `已恢复${version.label}` });
+    } catch {
+      this.publish({
+        phase: "error",
+        notice: "快照内容读取失败，当前编辑内容未改动",
+      });
+    }
+  }
+  async cleanupVersions(keepLast = 0) {
+    const project = this.state.project;
+    if (!project || project.versions.length <= keepLast) return;
+    const kept = keepLast === 0 ? [] : project.versions.slice(-keepLast),
+      removed = project.versions.slice(
+        0,
+        project.versions.length - kept.length,
+      );
+    try {
+      await projectRepository.deleteVersions(removed.map((item) => item.id));
+    } catch {
+      this.publish({
+        phase: "error",
+        notice: "快照清理失败，请稍后重试",
+      });
+      return;
+    }
+    await this.commit({ ...project, versions: kept });
+    this.publish({
+      notice: kept.length
+        ? `已清理旧快照，保留最近 ${kept.length} 个`
+        : "已清空全部快照",
+    });
+    void this.refreshStorage();
+  }
+  async refreshStorage() {
+    try {
+      const storage = await projectRepository.estimateStorage();
+      this.publish({ storage });
+    } catch {
+      // 存储统计失败不影响编辑
+    }
   }
   async exportFile() {
     const project = this.state.project;
